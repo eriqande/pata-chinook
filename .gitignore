@@ -3,3 +3,12 @@
 .RData
 
 baseline.zip
+
+GSI_SIM*
+em_mixture*
+pop_*
+rep_*
+full_baseline*
+dump*
+repunits.txt
+simmixfile*
