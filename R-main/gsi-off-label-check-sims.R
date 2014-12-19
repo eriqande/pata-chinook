@@ -16,6 +16,9 @@
 # populations or at least back to the reporting unit.  
 
 
+# this flag controls whether the simulations are totally done over (which can take a
+# rather long time)
+REDO_SIMS = TRUE
 
 #### Load some libraries ####
 library(digest)
@@ -276,16 +279,13 @@ run_a_pop <- function(pop,  f = c(.000001, 0.01, 0.025, 0.05, 0.1, 0.2, 0.5 ), r
 }
 
 
-#### Here is where we are at with running this ####
-
-# This is how we might run it on a single population for a few values of f.
-spoing <- run_a_pop("CentralValleyfa--Battle_Cr", c(.000000000002, .05), 5, noStrip = FALSE)
+#### Now run this over all the different populations ####
 
 
 # What I want to do now is run it for every population in the baseline for something
 # like 10 reps at each of 5 different values of f.  Then summarize the output
 # graphically.  One way would be to show the fraction of each rep data set that
-# ended up being assigned to the Willamette.  Those could be boxplots for each
+# ended up being assigned to the Willamette (or lower columbia, etc).  Those could be boxplots for each
 # and every baseline population.  Faceted over f.
 
 
@@ -297,3 +297,18 @@ pops_in_repu_counts <- repu_df %>%
   tally() %>%
   inner_join(., repu_df) %>%
   rename(number_of_pops_in_repu = n)
+
+# I will use the names of the pops in that to cycle over:
+pops_cycle  <- pops_in_repu_counts$pop
+pops_cycle <- pops_cycle[!(pops_cycle %in% c("CohoSp--California_Coho"))]  # remove coho
+
+
+if(REDO_SIMS == TRUE) {
+  list_output <- lapply(pops_cycle, run_a_pop, reps = 2)
+  names(list_output) <- pops_cycle
+  saveRDS(list_output, "all_pops_sim_output.rds", compress = "xz")
+}
+else {
+  list_output <- readRDS("all_pops_sim_output.rds")
+}
+
