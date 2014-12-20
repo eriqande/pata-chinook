@@ -140,6 +140,11 @@ afreqs_list <- lapply(names(afreqs_list), function(x) {
   setNames(., names(afreqs_list))
 
 
+# and for one last hurrah here we need to change the name of NOregonCoast--Nehalem_
+# to NOregonCoast--Nehalem_R.  It is named incorrectly on the POP line in the
+# baseline file.
+afreqs_list <- lapply(afreqs_list, function(x) {rownames(x)[27] <- "NOregonCoast--Nehalem_R"; x})
+
 
 #### Some functions ####
 
