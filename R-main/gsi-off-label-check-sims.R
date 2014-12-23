@@ -18,7 +18,7 @@
 
 # this flag controls whether the simulations are totally done over (which can take a
 # rather long time)
-REDO_SIMS = TRUE
+REDO_SIMS = FALSE
 
 #### Load some libraries ####
 library(digest)
@@ -27,7 +27,7 @@ library(stringr)
 library(reshape2)
 library(plyr)
 library(dplyr)
-
+library(ggplot2)
 
 
 
@@ -312,8 +312,45 @@ if(REDO_SIMS == TRUE) {
   list_output <- lapply(pops_cycle, run_a_pop, reps = 2)
   names(list_output) <- pops_cycle
   saveRDS(list_output, "all_pops_sim_output.rds", compress = "xz")
-}
-else {
+} else {
   list_output <- readRDS("all_pops_sim_output.rds")
 }
 
+
+#### Now, put the list_output into long format and prepare it for plotting ####
+
+simdf <- do.call(rbind, list_output)
+rownames(simdf) <- NULL
+
+# now strip some values out of the IndivNames and add the to the data frame
+tmp <- strsplit(as.character(simdf$IndivName), "_")
+simdf$f_value <- as.numeric(sapply(tmp, "[", 2))
+simdf$source_pop <- sapply(tmp, function(x) paste(x[-c(1,2, length(x))], collapse = "_")) %>%
+  factor(., levels = pops_cycle)
+
+# now, summarize with dplyr
+simdf <- tbl_df(simdf)
+
+# here is the number of fish from each source assigned to each max_repu
+mr_counts <- simdf %>%
+  group_by(source_pop, f_value, rep, max_repu) %>%
+  tally()
+
+
+# here we filter it to include only those fish assigned back to "WillametteR"
+ppt_to_willam <- mr_counts %>%
+  filter(max_repu == "WillametteR") %>%
+  mutate(ppn = n / 76)
+
+
+# now, let's make a quick plot:
+ggplot(data = ppt_to_willam, aes(y = source_pop, x = ppn)) + 
+  geom_point(color = "red") + 
+  facet_wrap(~ f_value)
+
+
+# OK. that all looks good, but there are two problems that must be dealt with:
+# 1. I accidentally left reps = 2 in there, instead of 10
+# 2. The two reps weren't actually different!  Something is wrong there---the reps look like
+#    they might be perfect replicas of one another (the gsi-sim results are all the same.  I need
+#    track that down!)
