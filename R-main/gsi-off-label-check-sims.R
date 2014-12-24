@@ -18,7 +18,7 @@
 
 # this flag controls whether the simulations are totally done over (which can take a
 # rather long time)
-REDO_SIMS = FALSE
+REDO_SIMS = TRUE
 
 #### Load some libraries ####
 library(digest)
@@ -258,7 +258,7 @@ chuck_it_through_gsi_sim <- function(R) {
   
   lapply(R$samples, function(x) {
     # here is how we make a mixture file:
-    gPdf2gsi.sim(R$samples[[1]], outfile = "simmixfile.txt")
+    gPdf2gsi.sim(x, outfile = "simmixfile.txt")
     
     # and then here we run it through gsi_sim
     gsi_Run_gsi_sim(" -b gsi_sim_file.txt  -t simmixfile.txt -r repunits.txt --mix-logl-sims 1000 0")
@@ -309,9 +309,10 @@ pops_cycle <- pops_cycle[!(pops_cycle %in% c("CohoSp--California_Coho"))]  # rem
 
 
 if(REDO_SIMS == TRUE) {
-  list_output <- lapply(pops_cycle, run_a_pop, reps = 2)
+  list_output <- lapply(pops_cycle, run_a_pop, reps = 10)
   names(list_output) <- pops_cycle
   saveRDS(list_output, "all_pops_sim_output.rds", compress = "xz")
+  stop("That's as far as we go with REDO_SIMS == TRUE")
 } else {
   list_output <- readRDS("all_pops_sim_output.rds")
 }
