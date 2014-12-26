@@ -18,7 +18,7 @@
 
 # this flag controls whether the simulations are totally done over (which can take a
 # rather long time)
-REDO_SIMS = TRUE
+REDO_SIMS = FALSE
 
 #### Load some libraries ####
 library(digest)
@@ -323,7 +323,7 @@ if(REDO_SIMS == TRUE) {
 simdf <- do.call(rbind, list_output)
 rownames(simdf) <- NULL
 
-# now strip some values out of the IndivNames and add the to the data frame
+# now strip some values out of the IndivNames and add them as new columns to the data frame
 tmp <- strsplit(as.character(simdf$IndivName), "_")
 simdf$f_value <- as.numeric(sapply(tmp, "[", 2))
 simdf$source_pop <- sapply(tmp, function(x) paste(x[-c(1,2, length(x))], collapse = "_")) %>%
@@ -338,20 +338,35 @@ mr_counts <- simdf %>%
   tally()
 
 
-# here we filter it to include only those fish assigned back to "WillametteR"
+# here we filter it to include only those fish assigned back to 
+# the reporting units of "WillametteR", "LColumbiaRfa", and
+# "LColumbiaRsp", the three reporting units to which fish in the Caterina
+# got assigned.
+# And we make the number out of 76 a proportion (ppn)
+# And also drop the Fst = 0.5 category --- that is way high and makes
+# it hard to facet this nicely.
 ppt_to_willam <- mr_counts %>%
-  filter(max_repu == "WillametteR") %>%
-  mutate(ppn = n / 76)
+  filter(max_repu %in% c("WillametteR", "LColumbiaRfa", "LColumbiaRsp")) %>%
+  mutate(ppn = n / 76) %>%
+  filter(f_value <= 0.2)
 
 
 # now, let's make a quick plot:
-ggplot(data = ppt_to_willam, aes(y = source_pop, x = ppn)) + 
-  geom_point(color = "red") + 
-  facet_wrap(~ f_value)
+the_plot <- ggplot(data = ppt_to_willam, aes(y = source_pop, x = ppn, color = max_repu)) + 
+  geom_jitter(position = position_jitter(height = .1, width = 0), size = 1.5) + 
+  facet_wrap(~ f_value) +
+  scale_color_manual(values = c("blue", "black", "orange"))
 
 
-# OK. that all looks good, but there are two problems that must be dealt with:
-# 1. I accidentally left reps = 2 in there, instead of 10
-# 2. The two reps weren't actually different!  Something is wrong there---the reps look like
-#    they might be perfect replicas of one another (the gsi-sim results are all the same.  I need
-#    track that down!)
+# print it to a large-ish PDF
+ggsave("main_fig.pdf", the_plot, width = 14, height = 16)
+
+# crop white space off it:
+
+
+try(boing <- system("pdfcrop main_fig.pdf"))
+if(boing == 127) {
+  message("pdfcrop not available on your system.  Whitespace not cropped from figure")
+  file.copy(from = "main_fig.pdf", to = "main_fig-crop.pdf", overwrite = TRUE)
+}
+file.rename("main_fig-crop.pdf", "tex/images/main_fig-crop.pdf")
