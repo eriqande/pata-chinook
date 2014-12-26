@@ -9,12 +9,12 @@ Patagonian rivers by Chinook salmon.
 To reproduce this work.  Here is how you do it:
 
 1. clone the repository
-    ```sh
+```sh
     git clone https://github.com/eriqande/pata-chinook.git
     ```
 1. Open the RStudio project in the repo and first get the libraries that you need.
     You will need these:
-    ```r
+```r
     library(digest)
     library(gpiper)
     library(stringr)
@@ -26,11 +26,11 @@ To reproduce this work.  Here is how you do it:
     All of these are available from CRAN, _except for gpiper_.  To get that 
     package you must have the `devtools` package installed. Then issue this
     command:
-    ```r
+```r
     devtools::install_github("eriqande/gpiper", ref = "3d5a6b5")
     ```
 1. Once those libraries are installed, issue this at the R prompt:
-    ```r
+```r
     source("R-main/gsi-off-label-check-sims.R")
     ```
 1. The above will create the figure and put it where it needs to be.  To typeset
