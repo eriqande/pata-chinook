@@ -11,7 +11,7 @@ To reproduce this work.  Here is how you do it:
 1. clone the repository
 ```sh
     git clone https://github.com/eriqande/pata-chinook.git
-    ```
+```
 1. Open the RStudio project in the repo and first get the libraries that you need.
     You will need these:
 ```r
@@ -22,7 +22,7 @@ To reproduce this work.  Here is how you do it:
     library(plyr)
     library(dplyr)
     library(ggplot2)
-    ```
+```
     All of these are available from CRAN, _except for gpiper_.  To get that 
     package you must have the `devtools` package installed. Then issue this
     command:
