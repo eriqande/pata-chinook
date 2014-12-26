@@ -28,11 +28,11 @@ To reproduce this work.  Here is how you do it:
     command:
 ```r
     devtools::install_github("eriqande/gpiper", ref = "3d5a6b5")
-    ```
+```
 1. Once those libraries are installed, issue this at the R prompt:
 ```r
     source("R-main/gsi-off-label-check-sims.R")
-    ```
+```
 1. The above will create the figure and put it where it needs to be.  To typeset
     the supplement, just run LaTeX/BibTeX on `tex/pata-chinook-suppl.tex`
 
